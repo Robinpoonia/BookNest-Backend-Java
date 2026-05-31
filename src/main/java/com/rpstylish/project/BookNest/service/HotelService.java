@@ -1,6 +1,7 @@
 package com.rpstylish.project.BookNest.service;
 
 import com.rpstylish.project.BookNest.dto.HotelDto;
+import com.rpstylish.project.BookNest.dto.HotelInfoDto;
 import com.rpstylish.project.BookNest.entity.Hotel;
 
 public interface HotelService {
@@ -13,4 +14,6 @@ public interface HotelService {
     void deleteHotelById(Long id);
 
     void activateHotel(Long hotelId);
+
+    HotelInfoDto getHotelInfoById(Long hotelId);
 }

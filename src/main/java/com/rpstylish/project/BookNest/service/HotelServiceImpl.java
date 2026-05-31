@@ -1,15 +1,20 @@
 package com.rpstylish.project.BookNest.service;
 
 import com.rpstylish.project.BookNest.dto.HotelDto;
+import com.rpstylish.project.BookNest.dto.HotelInfoDto;
+import com.rpstylish.project.BookNest.dto.RoomDto;
 import com.rpstylish.project.BookNest.entity.Hotel;
 import com.rpstylish.project.BookNest.entity.Room;
 import com.rpstylish.project.BookNest.exception.ResourceNotFoundException;
 import com.rpstylish.project.BookNest.repository.HotelRepository;
+import com.rpstylish.project.BookNest.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -19,6 +24,7 @@ public class HotelServiceImpl implements HotelService{
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;
     private final InvertoryService invertoryService;
+    private final RoomRepository roomRepository;
 
     @Override
     public HotelDto createNewHostel(HotelDto hotelDto) {
@@ -57,12 +63,11 @@ public class HotelServiceImpl implements HotelService{
         Hotel hotel = hotelRepository
                 .findById(hotelId)
                 .orElseThrow(()-> new ResourceNotFoundException("hotel not found with id " + hotelId));
-
-        hotelRepository.deleteById(hotelId);
         for(Room room: hotel.getRooms()){
-            invertoryService.deleteFutureInventories(room);
+            invertoryService.deleteAllInventories(room);
+            roomRepository.deleteById(room.getId());
         }
-
+        hotelRepository.deleteById(hotelId);
 
     }
 
@@ -79,6 +84,19 @@ public class HotelServiceImpl implements HotelService{
         for(Room room: hotel.getRooms()){
             invertoryService.initializeRoomForAYear(room);
         }
+    }
+
+    @Override
+    public HotelInfoDto getHotelInfoById(Long hotelId) {
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(()-> new ResourceNotFoundException("hotel not found with id " + hotelId));
+
+        List<RoomDto> rooms = hotel.getRooms()
+                .stream()
+                .map((element) -> modelMapper.map(element, RoomDto.class))
+                .toList();
+        return new HotelInfoDto(modelMapper.map(hotel,HotelDto.class),rooms);
     }
 }
 

@@ -2,18 +2,22 @@ package com.rpstylish.project.BookNest.entity;
 
 import com.rpstylish.project.BookNest.entity.enums.BookingStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.cache.annotation.CacheConfig;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +35,6 @@ public class Booking {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn( name = "payment_id")
-    private Payment payment;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -47,15 +48,18 @@ public class Booking {
     )
     private Set<Guest> Guests;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
 
     @Column(nullable = false)
     private Integer roomCount;
 
     @Column(nullable = false)
-    private Integer checkInDate;
+    private LocalDate checkInDate;
 
     @Column(nullable = false)
-    private Integer checkOutDate;
+    private LocalDate checkOutDate;
 
     @CreationTimestamp
     private LocalDateTime createAt;
